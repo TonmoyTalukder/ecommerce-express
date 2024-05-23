@@ -22,12 +22,23 @@ const createOrder = async (req: Request, res: Response) => {
 
 const getAllOrders = async (req: Request, res: Response) => {
     try {
-        const result = await OrderServices.getAllOrders();
-        res.status(200).json({
-            success: true,
-            message: "Orders fetched successfully!",
-            data: result,
-        });
+        const { email } = req.query;
+
+        if (email) {
+            const result = await OrderServices.getOrdersByEmail(email as string);
+            return res.status(200).json({
+                success: true,
+                message: `Orders fetched successfully for user email!`,
+                data: result,
+            });
+        } else {
+            const result = await OrderServices.getAllOrders();
+            return res.status(200).json({
+                success: true,
+                message: "Orders fetched successfully!",
+                data: result,
+            });
+        }
     } catch (err: any) {
         res.status(500).json({
             success: false,
