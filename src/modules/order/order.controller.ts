@@ -1,86 +1,82 @@
-import { Request, Response } from "express";
-import { OrderServices } from "./order.service";
-import { createOrderSchema } from "./order.validation";
+import { Request, Response } from 'express';
+import { OrderServices } from './order.service';
 
 const createOrder = async (req: Request, res: Response) => {
-    try {
-        const { error, value } = createOrderSchema.validate(req.body);
-        if (error) {
-            return res.status(400).json({
-                success: false,
-                message: error.details[0].message,
-            });
-        }
-
-        const orderData = value;
-        const result = await OrderServices.createOrder(orderData);
-
-        res.status(201).json({
-            success: true,
-            message: "Order created successfully!",
-            data: result,
-        });
-    } catch (err: any) {
-        if (err.message === "Insufficient quantity available in inventory") {
-            return res.status(400).json({
-                success: false,
-                message: err.message,
-            });
-        }
-        res.status(500).json({
-            success: false,
-            message: "Could not create order!",
-            error: err.message,
-        });
+  const orderData = req.body;
+  try {
+    const result = await OrderServices.createOrder(orderData);
+    res.status(201).json({
+      success: true,
+      message: 'Order created successfully!',
+      data: result,
+    });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      res.status(400).json({
+        success: false,
+        message: err.message,
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Could not create order!',
+      });
     }
+  }
 };
 
 const getAllOrders = async (req: Request, res: Response) => {
-    try {
-        const result = await OrderServices.getAllOrders();
-
-        res.status(200).json({
-            success: true,
-            message: "Orders fetched successfully!",
-            data: result,
-        });
-    } catch (err: any) {
-        res.status(500).json({
-            success: false,
-            message: "Could not fetch orders!",
-            error: err.message,
-        });
+  try {
+    const result = await OrderServices.getAllOrders();
+    res.status(200).json({
+      success: true,
+      message: 'Orders fetched successfully!',
+      data: result,
+    });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      res.status(500).json({
+        success: false,
+        message: err.message,
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Could not fetch orders!',
+      });
     }
+  }
 };
 
 const getOrdersByEmail = async (req: Request, res: Response) => {
-    try {
-        const { email } = req.query;
-        if (!email) {
-            return res.status(400).json({
-                success: false,
-                message: "Email query parameter is required",
-            });
-        }
-
-        const result = await OrderServices.getOrdersByEmail(email as string);
-
-        res.status(200).json({
-            success: true,
-            message: `Orders fetched successfully for user email!`,
-            data: result,
-        });
-    } catch (err: any) {
-        res.status(500).json({
-            success: false,
-            message: "Could not fetch orders!",
-            error: err.message,
-        });
+  const { email } = req.query;
+  try {
+    if (typeof email !== 'string') {
+      throw new Error('Invalid email parameter');
     }
+    const result = await OrderServices.getOrdersByEmail(email);
+    res.status(200).json({
+      success: true,
+      message: 'Orders fetched successfully for user email!',
+      data: result,
+    });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      res.status(500).json({
+        success: false,
+        message: err.message,
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Could not fetch orders!',
+      });
+    }
+  }
 };
 
 export const OrderControllers = {
-    createOrder,
-    getAllOrders,
-    getOrdersByEmail,
+  createOrder,
+  getAllOrders,
+  getOrdersByEmail,
 };

@@ -5,8 +5,8 @@ import validate from '../../middleware/middleware.validation';
 
 const router = express.Router();
 
-router.post("/", validate(createOrderSchema), OrderControllers.createOrder);
-router.get("/", OrderControllers.getAllOrders);
-router.get("/by-email", OrderControllers.getOrdersByEmail);
+router.post('/', validate(createOrderSchema), OrderControllers.createOrder);
+router.get('/', OrderControllers.getAllOrders);
+router.get('/by-email', OrderControllers.getOrdersByEmail);
 
 export const OrderRoutes = router;
