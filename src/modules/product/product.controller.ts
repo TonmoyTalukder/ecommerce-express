@@ -1,15 +1,32 @@
 import { Request, Response } from "express";
 import { ProductServices } from "./product.service";
+import { createProductSchema, updateProductSchema } from "./product.validation";
 
 const createProduct = async (req: Request, res: Response) => {
-    const productData = req.body;
-    const result = await ProductServices.createProduct(productData);
+    try {
+        const { error, value } = createProductSchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                message: error.details[0].message,
+            });
+        }
+        
+        const productData = value;
+        const result = await ProductServices.createProduct(productData);
 
-    res.json({
-        success: true,
-        message: "Product created successfully!",
-        data: result,
-    });
+        res.json({
+            success: true,
+            message: "Product created successfully!",
+            data: result,
+        });
+    } catch (err: any) {
+        res.status(500).json({
+            success: false,
+            message: "Could not create product!",
+            error: err.message,
+        });
+    }
 };
 
 const getAllProducts = async (req: Request, res: Response) => {
@@ -68,8 +85,16 @@ const getProductById = async (req: Request, res: Response) => {
 
 const updateProduct = async (req: Request, res: Response) => {
     try {
+        const { error, value } = updateProductSchema.validate(req.body);
+        if (error) {
+            return res.status(400).json({
+                success: false,
+                message: error.details[0].message,
+            });
+        }
+
         const { productID } = req.params;
-        const productData = req.body;
+        const productData = value;
         const result = await ProductServices.updateProduct(productID, productData);
 
         if (result) {
@@ -88,7 +113,7 @@ const updateProduct = async (req: Request, res: Response) => {
         res.status(500).json({
             success: false,
             message: "Could not update product!",
-            error: err,
+            error: err.message,
         });
     }
 };
