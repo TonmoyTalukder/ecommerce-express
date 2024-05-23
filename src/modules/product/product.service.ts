@@ -55,6 +55,28 @@ const searchProducts = async (searchTerm: string) => {
     }
 };
 
+const updateProductInventory = async (productId: string, quantity: number) => {
+    try {
+        const product = await Product.findById(productId);
+        if (!product) {
+            throw new Error("Product not found");
+        }
+
+        // Update inventory quantity
+        product.inventory.quantity -= quantity;
+
+        // Update inStock status
+        product.inventory.inStock = product.inventory.quantity > 0;
+
+        // Save the updated product
+        await product.save();
+
+        return product;
+    } catch (error) {
+        throw new Error("Error updating product inventory");
+    }
+};
+
 export const ProductServices = {
     createProduct,
     getAllProducts,
@@ -62,4 +84,5 @@ export const ProductServices = {
     updateProduct, 
     deleteProduct,
     searchProducts,
+    updateProductInventory,
 };
