@@ -8,14 +8,14 @@ const app = express();
 //parsers
 app.use(express.json());
 
+app.get('/', (req: Request, res: Response) => {
+  res.send('Hello Express!!!!');
+});
+
 app.use('/api/products', ProductRoutes);
 app.use('/api/orders', OrderRoutes);
 
 // Not found route handler
 app.use(notFoundHandler);
-
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello Express!!!!');
-});
 
 export default app;
